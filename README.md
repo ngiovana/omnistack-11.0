@@ -426,7 +426,7 @@ Contém o código apresentado na Semana OmniStack 11.0 e algumas anotações sob
 
       module.exports = connection;
 
-   importar `connections.js` para `routes.js`
+   importar `connections.js` para `routes.js` e adicionar o seguinte trecho para cadastro de ongs
 
       const express = require('express');
       const crypto = require('crypto');
@@ -458,7 +458,7 @@ Contém o código apresentado na Semana OmniStack 11.0 e algumas anotações sob
 
    então executar novamente a requisição no `Insomnia` e verificar que o `id` da `ong` é retornado
 
-   adicionar no arquivo `routes.js` o seguinte trecho 
+   adicionar no arquivo `routes.js` o seguinte trecho para a listagem de ongs
 
       routes.get('/ongs', async (request, response) => {
       const ongs = await connection('ongs').select('*');
@@ -468,31 +468,249 @@ Contém o código apresentado na Semana OmniStack 11.0 e algumas anotações sob
 
    no `Insomnia`, duplicar a requisição existente e nomear a nova requisição como "List", com método `GET` e `No Body`. Então enviar a requisição e verificar que a ONG foi cadastrada no banco de dados
 
-   -- tempo de aula 1:01:20
-
-
-
+## Reorganização
    
+   criar a pasta `controllers` dentro de `src` e colocar a lógica de cadastro e listagem de ONGS que está em `routes` para o arquivo `OngController.js`, dentro da pasta `controllers`
+  
+   ### OngController.js
 
+      const connection = require('../database/connections');
+      const crypto = require('crypto');
 
-   
+      module.exports = {
 
-
-    
-
-   
-
-   
-
-
-   
-
-
-
-
-   
-
-
+      async index(request, response) {
+         const ongs = await connection('ongs').select('*');
       
+         return response.json(ongs);
+      },
       
+      async create(request, response) {
+         const {name, email, whatsapp, city, uf } = request.body;
+
+         const id = crypto.randomBytes(4).toString('HEX');
+
+         await connection('ongs').insert({
+            id,
+            name,
+            email,
+            whatsapp,
+            city,
+            uf,
+         })
+
+         return response.json({ id });
+      }
+      };
+
+   assim, `routes.js` fica 
+
+      const express = require('express');
+
+      const OngController = require('./controllers/OngController');
+      
+      const routes = express.Router();
+
+      routes.get('/ongs', OngController.index); 
+
+      routes.post('/ongs', OngController.create);
+
+      module.exports = routes;os métodos que serão exportados desse arquivo para arquivos que utilizarem `OngController.js`
+
+   * em `module exports` estão os métodos que serão exportados aos arquivos que utilizarem `OngController.js`
+
+## Cadastro de incidents
    
+   criar o arquivo `IncidentController.js` dentro da pasta `controllers`
+
+   ### IncidentController.js
+
+      const connection = require('../database/connections');
+
+      module.exports = {
+      async create(request, response ) {
+         const { title, description, value } = request.body;
+         const ong_id = request.headers.authorization;
+
+         const [id] = await connection('incidents').insert({
+            title,
+            description,
+            value,
+            ong_id,
+         });
+
+         return response.json({id});
+      }
+      };
+
+   a lógica é quase a mesma do arquivo `OngController.js`, porém em `IncidentController.js` utiliza-se header para pegar o valor de `ong_id`, que seria o id da ONG responsável por cadastrar o Incident
+
+   ### routes.js
+
+      const express = require('express');
+
+      const OngController = require('./controllers/OngController');
+      const IncidentController = require('./controllers/IncidentController');
+
+      const routes = express.Router();
+
+      routes.get('/ongs', OngController.index); 
+      routes.post('/ongs', OngController.create);
+
+      routes.post('/incidents', IncidentController.create);
+
+      module.exports = routes;
+
+   adicionar também a lógica de listagem de incidentes no arquivo `IncidentController.js`, conforme o seguinte trecho
+
+      async index(request, response) {
+         const incidents = await connection('incidents').select('*');
+
+         return response.json(incidents);
+      },
+
+   e em `routes.js` adicionar o trecho
+
+      routes.get('/incidents', IncidentController.index);
+
+   no `Insomnia`, criar uma pasta chamada `Incidents` e criar uma requisição chamada `Create` com método `POST`, `JSON` e rota `http://localhost:3333/incidents`. Em `Header` adicionar um content-Type `Authorization` e application/json com o ID de uma ong cadastrada. Enviar e verificar que o ID do incident é retornado.
+
+   então, duplicar a requisição, dar nome de `List` com método `GET`, `No Body` e enviar. Verificar que os dados do incidente são retornados.
+
+   ### adicionar o método delete ao IncidentController.js
+
+   no método `delete` deve-se buscar o `id` do incident e o `ong_id` para verificar se o incidente pertence a ong que está logada
+
+   assim em `IncidentController.js` adicionar o trecho
+
+      async delete(request, response) {
+      const { id } = request.params; // busca a id do incidente
+      const ong_id = request.headers.authorization; // busca a id da ong
+      
+      const incident = await connection('incidents')
+      .where('id', id) // id da requisição igual o id do parametro
+      .select('ong_id') // selecionar a coluna ong_id
+      .first();
+
+      // se o ong_id do incidente for diferente do ong_id que está logado na aplicação mostra erro
+      if (incident.ong_id != ong_id) {
+         return response.status(401).json({ error: 'Operation not permitted.' });
+      }
+      
+      await connection('incidents').where('id', id).delete();
+      return response.status(204).send();
+      
+      }
+
+   em `routes.js` adicionar
+
+      routes.delete('/incidents/:id', IncidentController.delete);
+
+   no `Insomnia` duplicar a requisição `Create` da pasta `Incidents` com o nome `Delete` método `Delete`, `No Body`, rota `http://localhost:3333/incidents/1` e em `Header` manter o ID da ong. Obs: caso o id seja diferente não será possível deletar e a mensagem de erro será apresentada.
+
+   enviar e verificar que foi deletado o incidente.
+
+   para listar todos os casos de uma ONG, dentro de `controllers` deve ser criado o arquivo `ProfileController.js` da seguinte forma
+
+      const connection = require('../database/connections');
+
+      module.exports = {
+      async index(request, response) {
+         const ong_id = request.headers.authorization;
+
+         const incidents = await connection('incidents')
+         .where('ong_id', ong_id)
+         .select('*');
+
+         return response.json(incidents);
+      }
+      }
+
+   no `Insomnia` criar uma nova requisição fora das pastas chamada `Profile` com método `GET`, `No Body`, rota `http://localhost:3333/Profile` e, em `Header`, `Authorization` e o ong_id. enviar e verificar que os incidentes da ONG serão listados
+
+   em `routes.js` adicionar os trechos
+      
+      const ProfileController = require('./controllers/ProfileController');
+
+   e
+
+      routes.get('/profile', ProfileController.index);
+
+### Login da ONG
+
+   para realizar o login da ONG, o arquivo `SessionController.js` deve ser criado na pasta `controllers`, da seguinte forma 
+
+      const connection = require('../database/connections');
+
+      module.exports = {
+      async create(request, response) {
+         const { id } = request.body;
+
+         const ong = await connection('ongs')
+         .where('id', id)
+         .select('name')
+         .first();
+
+         if(!ong) {
+            return response.status(400).json({ error: 'No ONG found with this ID'});
+         }
+
+         return response.json(ong);
+      }
+      }
+
+   em `routes.js` deve ser adicionado os trechos
+
+      const SessionController = require('./controllers/SessionController');
+
+   e
+
+      routes.post('/sessions', SessionController.create);
+
+   no `Insomnia`, dupliccar o `Profile` com nome `Login`, método `POST`, corpo `JSON`, rota `http://localhost:3333/session` e no corpo executar (substituindo o <ong_id> pelo id)
+
+      {
+         "id": "<ong_id>"
+      }  
+
+   verificar que o nome da ONG foi retornado
+
+### Paginação
+
+   em `IncidentController.js`, para que o método de listagem (index) apresente apenas 5 incidentes por página, deve-se modificar para
+
+      async index(request, response) {
+         const { page = 1 } = request.query
+
+         const [count] = await connection('incidents').count(); // conta o número total de incidents
+
+         const incidents = await connection('incidents')
+         .join('ongs','ongs.id', '=', 'incidents.ong_id') // id da ong = id do incidente 
+         .limit(5)
+         .offset((page - 1) * 5) // mostra a cada 5 registros
+         .select(['incidents.*', 'ongs.name', 'ongs.email', 'ongs.whatsapp', 'ongs.city', 'ongs.uf']); // seleciona todos os campos de incidents e alguns de ongs, para que o id de ongs não se sobreponha ao id no incident
+
+         response.header('X-Total-Count', count['count(*)']); // Apresenta o total de incidents
+
+         return response.json(incidents);
+      },
+
+   no `Insomnia`, cadastrar mais de 5 incidents e listá-los, verificar que na primeira página apenas os primeiros 5 serão listados. Ao adicionar ao recurso `?page=2`, os próximos 5 serão listados, e assim por diante. Em `Header` perceber a presença do item `X-Total-Count` contendo o valor total de incidents
+
+   no terminal, com `CTRL + C` fechar o servidor e instalar o `CORS` para deeterminar quem pode acessar a aplicação com o seguinte comando
+
+      $ npm install cors
+
+   em `index.js` importar o cors com 
+
+      const cors = require('cors');
+
+   e adicionar 
+
+      app.use(cors());
+
+   caso estivesse em produção, seria
+
+      app.use(cors(
+         origin: 'http://www.exemplo.com'
+      ));
