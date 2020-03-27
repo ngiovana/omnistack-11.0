@@ -714,3 +714,117 @@ Contém o código apresentado na Semana OmniStack 11.0 e algumas anotações sob
       app.use(cors(
          origin: 'http://www.exemplo.com'
       ));
+
+# Aula 3
+
+### Organizando a estrutura
+
+   acessar a pasta frontend
+
+      $ cd frontend
+      $ code .
+
+   deletar arquivos que não serão usados neste momento, como `README.md`, `App.css`, `App.test.js`, `index.css`, `logo.svg`, `serviceWorker.js` e `setupTests.js`
+
+   em `index.js` remover as importações dos arquivos `index.css` e `serviceWorker.js` já que os mesmos foram removidos
+
+   remover também o comentários e a chamada do serviceWorker
+
+   em `App.js` remover também as importações dos arquivos deletados e o conteúdo html. No lugar desse conteúdo digitar
+
+      <h1>Hello World</h1>
+
+   dentro da pasta `public`, deletar os arquivos `robots.txt`, `manifest.json` e as logos
+
+   modificar `index.html` para
+
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+         <meta charset="utf-8" />
+         <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+         <meta name="viewport" content="width=device-width, initial-scale=1" />
+         <meta name="theme-color" content="#000000" />
+         
+         <title>Be The Hero</title>
+      </head>
+      <body>
+         <noscript>You need to enable JavaScript to run this app.</noscript>
+         <div id="root"></div>
+      </body>
+      </html>
+
+   executar o seguinte comando no terminal para executar a aplicação
+
+      $ npm start
+
+   um componente no React é uma função que retorna HTML, JSX é quando o HTML está integrado ao JavaScript
+
+   ## Propriedades
+
+   quando um código se repetir muitas vezes na aplicação ou puder ser isolado sem resultar em diferença no restante da aplicação cria-se um componente novo. Componentes devem ter a primeira letra maiúscula
+
+   criar em `src` um componente `Header.js`
+
+   importar o React com
+
+      import React from 'react';
+   
+   adicionar em `Header.js` o seguinte trecho
+
+      export default function Header(props) {
+      return (
+         <header>
+            <h1>{props.title}</h1>
+         </header>
+      );
+      }
+
+   após isso, em `App.js` importar a `Header` e substituir a linha que contém o `<h1>Hello World</h1>` por
+
+       <Header title="Semana OmniStack"/>
+
+   obs: ao usar JavaScript no "meio" de HTML sempre deve-se usar chaves {}
+   
+   * props.children pega todo o texto dentro da tag Header
+
+   ## Estado
+
+   toda vez que o estado for alterado o componente remonta exibindo as novas informações em tela
+
+## Login
+
+   criar uma pasta em `src` chamada `assets` para armazenar a logo e imagens utilizadas
+
+   criar em `src` a pasta `pages` e dentro desta pasta, a pasta `Logon`
+
+   em `Logon` criar os arquivos `index.js` e `styles.css`
+
+   deletar `Header.js` e criar um arquivo em `scr` chamado `global.css` para estilizações obtidas em todas as páginas
+
+   acessar Google Fonts, selecionar o fonte Roboto e em customize selecionar regular 400, medium 500 e bold 700
+
+   em Embed e @Import copiar o import para `global.css`
+
+### Rotas
+
+Instalar o seguinte pacote para lidar com rotas
+
+   $ npm install react-router-dom
+
+e criar em `src` o arquivo `routes.js` para as rotas das páginas
+
+## Conectar o backend com o frontend
+
+   no terminal, acessar a pasta `backend` e dar start no servidor
+
+      $ cd ../backend
+      $ npm start
+
+   instalar o cliente http para fazer as chamadas da API axios, com o seguinte comando
+
+      $ npm install axios
+
+    
+
+   
