@@ -880,5 +880,56 @@ e criar em `src` o arquivo `routes.js` para as rotas das páginas
 
       $ npm install axios
 
+   para lidar com o valor, executar
+
+      $ npm install intl   
+
+# Aula 4
+
+   para realizar as validações, instalar o celebrate
+
+      $ npm i celebrate
+
+   para testar, instalar o jest com o seguinte comando
+
+      $ npm install jest
+
+   após a instalação, inciar o jest com 
+
+      $ npx jest --init 
+      
+   respostas das perguntas: Y, node, N, Y
+
+   testes de integração testam o fluxo da rota inteira de integração, testa funcionalidades por completo
+
+   testes unitários testam pedaços da aplicação de forma isolada
+
+   para executar o teste, basta executar
+
+      $ npm test
+
+   para o teste de integração, executar
+
+      $ npm install cross-env
+
+## Deploy
+ ### Backend: Node
+   * Aplicação experimental, objetivo de teste:  [heroku](https://www.heroku.com/) [tutorial de hospedagem heroku](https://www.youtube.com/watch?v=-j7vLmBMsEU)
+
+   * aplicação maior: [digital ocean](https://www.digitalocean.com/) [deploy digital ocean](https://www.youtube.com/watch?v=ICIz5dE3Xfg)
+
+## Frontend: React
+
+* aplicações pequenas e para testes : [netlify](https://www.netlify.com/)
+
+## Mobile
+
+* [video gerando apk](https://www.youtube.com/watch?v=wYMvzbfBdYI)
+
+## Estudos daqui pra frente:
+   * Padrões de código: ESLint, Prettier 
+   * Autenticação JWT
+   * Style Components
+   
 
    
