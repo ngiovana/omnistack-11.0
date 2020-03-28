@@ -825,6 +825,60 @@ e criar em `src` o arquivo `routes.js` para as rotas das páginas
 
       $ npm install axios
 
-    
+   criar em `src` uma pasta `services` e, dentro desta pasta, o arquivo `api.js`, onde será importado o axios e informado a baseURL 
+
+# Aula 3
+   
+   ## Mobile
+
+   o primeiro passo é instalar o Expo, que vai ser utilizado para criar e visualizar projetos
+
+      $ sudo npm install -g expo-cli
+
+   para criar o projeto com nome `mobile`, executar o seguinte comando
+
+      $ expo init mobile
+
+   entrar na pasta mobile e executar com 
+
+      $ cd mobile
+      $ yarn start
+
+   baixar o expo no celular e conectar via qrcode 
+
+   em `mobile/app.json` mudar o `name` para Be The Hero e `slug` para bethehero, pois este não pode conter espaços ou acentos
+
+   o React Native não possui as mesmas tags do HTML, não existe a semântica. O React Native possui a classe `StyleSheet` que tem o método `create` que pode ser utilizado para a criação dos estilos
+
+   todos os elementos possuem `display: flex` como padrão. Escreve-se no estilo camel case 
+
+   não existe herança de estilos no React Native
+
+   acessar a documentação do [React Navigation](https://reactnavigation.org/docs/getting-started)
+
+   para fazer as rotas, instalar o react navigation com o seguinte comando
+
+      $ npm install @react-navigation/native
+
+   para instalar o restante dos pacotes, executar o seguinte comando
+
+      $ expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view
+
+   Acessar [Hello World Navigator](https://reactnavigation.org/docs/hello-react-navigation) e instalar o stack navigator com o seguinte comando
+
+      $ npm install @react-navigation/stack
+
+   para estilização, instalar
+
+      $ expo install expo-constants
+
+   para utilizar o email, instalar o pacote
+
+      $ expo install expo-mail-composer
+
+   para conectar com a API, instalar também o axios no mobile
+
+      $ npm install axios
+
 
    
