@@ -33,9 +33,6 @@ routes.get('/incidents', celebrate({
   })
 }),IncidentController.index);
 routes.post('/incidents', celebrate({
-  [Segments.HEADERS]: Joi.object().keys({
-    authorization: Joi.string().required(),
-  }),
   [Segments.BODY]: Joi.object().keys({
     title: Joi.string().required(),
     description: Joi.string().required(),
